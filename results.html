@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>萬葉牛燒肉店爬取結果</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f8f9fa;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            padding: 2rem;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 2rem;
+            font-size: 2rem;
+        }
+        
+        .summary {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .restaurant-card {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+        
+        .restaurant-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+        }
+        
+        .restaurant-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .restaurant-rating {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stars {
+            color: #ffc107;
+            font-size: 1.2rem;
+        }
+        
+        .rating-score {
+            background: rgba(255,255,255,0.2);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        .restaurant-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            padding: 1.5rem;
+        }
+        
+        .info-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+        
+        .info-section h3 {
+            color: #495057;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        .info-item {
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .info-item strong {
+            color: #333;
+            min-width: 60px;
+        }
+        
+        .reviews-section {
+            background: #ffffff;
+            border-top: 1px solid #dee2e6;
+            padding: 1.5rem;
+        }
+        
+        .reviews-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .review-item {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: #fafafa;
+        }
+        
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .reviewer-name {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .review-date {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .review-rating {
+            color: #ffc107;
+            margin-bottom: 0.5rem;
+        }
+        
+        .review-text {
+            color: #495057;
+            line-height: 1.6;
+        }
+        
+        .no-reviews {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            padding: 2rem;
+        }
+        
+        .back-button {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .back-button:hover {
+            background: #0056b3;
+        }
+        
+        .toggle-reviews {
+            background: #28a745;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .toggle-reviews:hover {
+            background: #218838;
+        }
+        
+        .reviews-collapsed {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🥩 萬葉牛燒肉店爬取結果</h1>
+        
+        <a href="/" class="back-button">← 返回首頁</a>
+        
+        <div class="summary">
+            <h2>📊 搜尋結果統計</h2>
+            <p>共找到 <strong>{{ restaurants|length }}</strong> 家萬葉牛燒肉店</p>
+        </div>
+        
+        {% if restaurants %}
+            {% for restaurant in restaurants %}
+            <div class="restaurant-card">
+                <div class="restaurant-header">
+                    <div class="restaurant-name">{{ restaurant.name or '未知店名' }}</div>
+                    
+                    {% if restaurant.rating %}
+                    <div class="restaurant-rating">
+                        <div class="stars">
+                            {% set rating_num = restaurant.rating.split()[0] | float %}
+                            {% for i in range(5) %}
+                                {% if i < rating_num %}
+                                    ⭐
+                                {% else %}
+                                    ☆
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <div class="rating-score">{{ restaurant.rating }}</div>
+                        {% if restaurant.review_count %}
+                        <div class="review-count">{{ restaurant.review_count }}</div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="restaurant-info">
+                    <div class="info-section">
+                        <h3>📍 基本資訊</h3>
+                        
+                        {% if restaurant.address %}
+                        <div class="info-item">
+                            <strong>地址:</strong>
+                            <span>{{ restaurant.address }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if restaurant.phone %}
+                        <div class="info-item">
+                            <strong>電話:</strong>
+                            <span>{{ restaurant.phone }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if restaurant.website %}
+                        <div class="info-item">
+                            <strong>網站:</strong>
+                            <a href="{{ restaurant.website }}" target="_blank">{{ restaurant.website }}</a>
+                        </div>
+                        {% endif %}
+                        
+                        {% if restaurant.hours %}
+                        <div class="info-item">
+                            <strong>營業時間:</strong>
+                            <span>{{ restaurant.hours }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                {% if restaurant.reviews %}
+                <div class="reviews-section">
+                    <div class="reviews-header">
+                        <h3>💬 顧客評論 ({{ restaurant.reviews|length }})</h3>
+                        <button class="toggle-reviews" onclick="toggleReviews(this)">
+                            展開評論
+                        </button>
+                    </div>
+                    
+                    <div class="reviews-content reviews-collapsed">
+                        {% for review in restaurant.reviews %}
+                        <div class="review-item">
+                            <div class="review-header">
+                                <div class="reviewer-name">{{ review.reviewer_name or '匿名用戶' }}</div>
+                                <div class="review-date">{{ review.date }}</div>
+                            </div>
+                            
+                            {% if review.rating %}
+                            <div class="review-rating">{{ review.rating }}</div>
+                            {% endif %}
+                            
+                            {% if review.review_text %}
+                            <div class="review-text">{{ review.review_text }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% else %}
+                <div class="reviews-section">
+                    <div class="no-reviews">
+                        暫無評論資料
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-results">
+                <h2>😔 沒有找到結果</h2>
+                <p>很抱歉，沒有找到任何萬葉牛燒肉店的資料。</p>
+                <p>請嘗試重新爬取或檢查搜尋條件。</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+        function toggleReviews(button) {
+            const reviewsContent = button.parentElement.nextElementSibling;
+            const isCollapsed = reviewsContent.classList.contains('reviews-collapsed');
+            
+            if (isCollapsed) {
+                reviewsContent.classList.remove('reviews-collapsed');
+                button.textContent = '收起評論';
+            } else {
+                reviewsContent.classList.add('reviews-collapsed');
+                button.textContent = '展開評論';
+            }
+        }
+    </script>
+</body>
+</html>

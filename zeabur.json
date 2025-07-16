@@ -1,0 +1,14 @@
+{
+  "name": "manyo-beef-scraper",
+  "description": "Manyo Beef Restaurant Scraper for Tottori Prefecture",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "deploy": {
+    "env": {
+      "PYTHONUNBUFFERED": "1",
+      "DISPLAY": ":99"
+    }
+  },
+  "expose": 8000
+}
